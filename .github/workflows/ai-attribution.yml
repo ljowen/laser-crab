@@ -1,0 +1,33 @@
+name: AI attribution check
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+# pull_request_target (not pull_request) so the job gets a writable token on
+# fork PRs. Safe here because we never check out or execute PR code -- the
+# checkout below is pinned to the base repo and we only read commit metadata.
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: ai-attribution-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out base repo (trusted code only)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
+
+      - name: Scan commits for AI attribution
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          MEME_URL: https://eu-images.contentstack.com/v3/assets/blt663d10211b43b0ca/blt9d7c4aa3d72f7e17/67a44e6d32968945482ee584/Silence-brand-cause-image.png?width=1400&auto=webp&quality=80&disable=upscale
+        run: node .github/scripts/check-attribution.mjs
