@@ -29,5 +29,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          MEME_URL: https://eu-images.contentstack.com/v3/assets/blt663d10211b43b0ca/blt9d7c4aa3d72f7e17/67a44e6d32968945482ee584/Silence-brand-cause-image.png?width=1400&auto=webp&quality=80&disable=upscale
+          # Commit the image is served from -- the base commit, which is the
+          # same tree this workflow and script were read from.
+          MEME_REF: ${{ github.event.pull_request.base.sha }}
         run: node .github/scripts/check-attribution.mjs

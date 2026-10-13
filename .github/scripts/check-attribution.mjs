@@ -8,7 +8,12 @@
 const TOKEN = process.env.GITHUB_TOKEN;
 const REPO = process.env.GITHUB_REPOSITORY;
 const PR = process.env.PR_NUMBER;
-const MEME_URL = process.env.MEME_URL;
+const MEME_REF = process.env.MEME_REF;
+
+// The image lives in this repo. Comments can't use relative links, so it is
+// addressed through raw.githubusercontent.com, pinned to the base commit.
+const MEME_PATH = ".github/assets/attribution.png";
+const MEME_URL = `https://raw.githubusercontent.com/${REPO}/${MEME_REF}/${MEME_PATH}`;
 
 const MARKER = "<!-- ai-attribution-check -->";
 const TASK_TEXT = "Remove corporate attribution";
@@ -129,7 +134,8 @@ async function findExistingComment() {
 }
 
 async function main() {
-  for (const [key, value] of Object.entries({ GITHUB_TOKEN: TOKEN, GITHUB_REPOSITORY: REPO, PR_NUMBER: PR })) {
+  const required = { GITHUB_TOKEN: TOKEN, GITHUB_REPOSITORY: REPO, PR_NUMBER: PR, MEME_REF: MEME_REF };
+  for (const [key, value] of Object.entries(required)) {
     if (!value) throw new Error(`Missing required env var ${key}`);
   }
 
