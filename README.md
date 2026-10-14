@@ -77,11 +77,14 @@ On a shared branch, agree that with whoever else is on it first.
 
 ## Changing the image
 
-The image is stored in the repo at `.github/assets/attribution.webp` — replace
-that file and nothing else. Comments can't use relative links, so the script
-addresses it through `raw.githubusercontent.com`, pinned to the PR's base
-commit (`MEME_REF` in the workflow). Keeping the picture in-tree means the
-comment doesn't depend on someone else's CDN staying up.
+The image lives at `.github/assets/attribution.webp` and is served from this
+repo's `main` branch via `raw.githubusercontent.com`. That URL is hardcoded in
+the script — it deliberately points at **this** repo, not at whichever repo
+the workflow is running in. Replacing the file on `main` updates the comment
+everywhere the workflow is installed.
+
+To use your own picture, set `MEME_URL` in the workflow; the hardcoded default
+is only a fallback.
 
 ## Limitations
 
@@ -89,7 +92,9 @@ comment doesn't depend on someone else's CDN staying up.
   commits go uninspected and the run logs a warning.
 - Only commits belonging to the PR are checked — nothing already on the base
   branch is revisited.
-- **Private repositories**: `raw.githubusercontent.com` requires auth, so
-  GitHub's image proxy can't reach the file and the comment shows a broken
-  image. The text, task item and failing check still work. Point the script's
-  `MEME_URL` at an externally hosted copy if you need the picture to render.
+- **The image URL must point at a public repo.** GitHub's image proxy fetches
+  server-side and unauthenticated, so a `raw.githubusercontent.com` URL only
+  renders if the repo hosting the *file* is public. The repo running the
+  *workflow* can be private — that's why the default URL is pinned here rather
+  than built from `github.repository`. If you fork this repo private and
+  self-host the image, the comment will show a broken image.

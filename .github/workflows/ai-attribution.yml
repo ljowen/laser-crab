@@ -29,7 +29,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          # Commit the image is served from -- the base commit, which is the
-          # same tree this workflow and script were read from.
-          MEME_REF: ${{ github.event.pull_request.base.sha }}
+          # Optional: self-host the image. Defaults to the copy in the
+          # public ljowen/laser-crab repo, which renders in private repos too.
+          # MEME_URL: https://example.com/attribution.webp
         run: node .github/scripts/check-attribution.mjs

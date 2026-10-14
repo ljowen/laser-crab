@@ -8,12 +8,15 @@
 const TOKEN = process.env.GITHUB_TOKEN;
 const REPO = process.env.GITHUB_REPOSITORY;
 const PR = process.env.PR_NUMBER;
-const MEME_REF = process.env.MEME_REF;
 
-// The image lives in this repo. Comments can't use relative links, so it is
-// addressed through raw.githubusercontent.com, pinned to the base commit.
-const MEME_PATH = ".github/assets/attribution.webp";
-const MEME_URL = `https://raw.githubusercontent.com/${REPO}/${MEME_REF}/${MEME_PATH}`;
+// The image is served from laser-crab's own *public* repo rather than from
+// whichever repo this is running in. GitHub's image proxy fetches server-side
+// and unauthenticated, so a raw URL only renders if the hosting repo is
+// public -- addressing the running repo would break every private install.
+// Set MEME_URL to self-host instead.
+const MEME_URL =
+  process.env.MEME_URL ||
+  "https://raw.githubusercontent.com/ljowen/laser-crab/main/.github/assets/attribution.webp";
 
 const MARKER = "<!-- ai-attribution-check -->";
 const TASK_TEXT = "Remove corporate attribution";
@@ -134,7 +137,7 @@ async function findExistingComment() {
 }
 
 async function main() {
-  const required = { GITHUB_TOKEN: TOKEN, GITHUB_REPOSITORY: REPO, PR_NUMBER: PR, MEME_REF: MEME_REF };
+  const required = { GITHUB_TOKEN: TOKEN, GITHUB_REPOSITORY: REPO, PR_NUMBER: PR };
   for (const [key, value] of Object.entries(required)) {
     if (!value) throw new Error(`Missing required env var ${key}`);
   }
