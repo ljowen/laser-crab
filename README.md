@@ -1,16 +1,7 @@
-# laser-crab
+# Time for Crab!
 
-A GitHub Actions workflow that notices when a commit credits an AI assistant as
-an author, and asks — with a photograph — that you reconsider.
-
-When a pull request contains commits attributed to Claude, Copilot, Codex,
-Gemini, Cursor, Devin, Aider or Windsurf, the workflow posts a single comment
-on the PR containing the meme and a task item:
-
-> - [ ] Remove corporate attribution
-
-The check fails while any attributed commit remains, so the PR carries a red ✗
-until the history is rewritten.
+Workflow to block PRs containing attributions to corporate LLM's. 
+These models never attribute their sources so why should corporations get free advertising?
 
 ## Install
 
@@ -19,14 +10,6 @@ Copy `.github/` into the repository you want policed:
 ```sh
 cp -r .github /path/to/your/repo/
 ```
-
-No dependencies, no marketplace actions, no secrets beyond the automatic
-`GITHUB_TOKEN`. The script is plain Node and runs on the runner's built-in
-`fetch`.
-
-Because the workflow triggers on `pull_request_target`, GitHub runs the copy on
-your **base branch** — so it takes effect only once merged, and edits to the
-workflow itself won't apply until they land on the default branch.
 
 ## What counts as attribution
 
@@ -46,12 +29,9 @@ Each commit in the PR is checked against these patterns:
 Patterns are tested **only** against the commit's author and committer
 identity, and against trailer-shaped lines in the message — `Co-Authored-By:`,
 `Signed-off-by:`, `Assisted-by:`, `Generated-with:`, and any line containing
-"generated with". The prose body is never scanned, so a commit that merely
-discusses Copilot doesn't trip the check. This repository's own initial commit
-names six vendors in its body and passes.
+"generated with". 
 
 Edit `PATTERNS` in `.github/scripts/check-attribution.mjs` to adjust the list.
-`\bcursor\b` is the loosest entry and the first one to drop if it misfires.
 
 ## Behaviour
 
@@ -64,39 +44,7 @@ Edit `PATTERNS` in `.github/scripts/check-attribution.mjs` to adjust the list.
 - **Exit 1 on any match**, plus `::error::` annotations and a job-summary table.
 
 ## Fixing a flagged PR
-
-Attribution lives in commit metadata, so it can't be removed by a follow-up
-commit — the history has to be rewritten and force-pushed:
-
 ```sh
-git rebase -i origin/main      # reword / drop the trailers
+git rebase -i origin/main      # reword
 git push --force-with-lease
 ```
-
-On a shared branch, agree that with whoever else is on it first.
-
-## Changing the image
-
-The image lives at `.github/assets/attribution.webp` and is served from this
-repo's `main` branch via `raw.githubusercontent.com`. That URL is hardcoded in
-the script — it deliberately points at **this** repo, not at whichever repo
-the workflow is running in. Replacing the file on `main` updates the comment
-everywhere the workflow is installed.
-
-To use your own picture, set `MEME_URL` in the workflow; the hardcoded default
-is only a fallback.
-
-## Limitations
-
-- GitHub's PR-commits API returns at most 250 commits. Beyond that, older
-  commits go uninspected and the run logs a warning.
-- Only commits belonging to the PR are checked — nothing already on the base
-  branch is revisited.
-- **The image URL must point at somewhere publicly readable.** GitHub leaves
-  `raw.githubusercontent.com` links untouched when rendering a comment (it's
-  their own domain), so the reader's browser fetches the file directly and
-  unauthenticated — it has to be public. Third-party URLs are instead proxied
-  through `camo.githubusercontent.com`, which fetches server-side, also
-  unauthenticated. Either way the *file* must be public; the repo running the
-  *workflow* can be private, which is why the default URL is pinned to this
-  repo rather than built from `github.repository`.
