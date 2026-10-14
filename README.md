@@ -33,15 +33,9 @@ identity, and against trailer-shaped lines in the message — `Co-Authored-By:`,
 
 Edit `PATTERNS` in `.github/scripts/check-attribution.mjs` to adjust the list.
 
-## Behaviour
+## [See it in action](https://github.com/ljowen/laser-crab/pull/2)
 
-- **One comment per PR.** A hidden `<!-- ai-attribution-check -->` marker locates
-  the existing comment and edits it in place rather than posting on every push.
-- **The box stays ticked.** If you check `- [x] Remove corporate attribution`, a
-  later run preserves it instead of silently reverting your work.
-- **It clears itself.** Once the commits are clean, the comment is rewritten to a
-  ✅ note rather than deleted, so the thread still makes sense to read.
-- **Exit 1 on any match**, plus `::error::` annotations and a job-summary table.
+
 
 ## Fixing a flagged PR
 ```sh
