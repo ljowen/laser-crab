@@ -77,7 +77,7 @@ On a shared branch, agree that with whoever else is on it first.
 
 ## Changing the image
 
-The image is stored in the repo at `.github/assets/attribution.png` — replace
+The image is stored in the repo at `.github/assets/attribution.webp` — replace
 that file and nothing else. Comments can't use relative links, so the script
 addresses it through `raw.githubusercontent.com`, pinned to the PR's base
 commit (`MEME_REF` in the workflow). Keeping the picture in-tree means the

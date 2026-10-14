@@ -12,7 +12,7 @@ const MEME_REF = process.env.MEME_REF;
 
 // The image lives in this repo. Comments can't use relative links, so it is
 // addressed through raw.githubusercontent.com, pinned to the base commit.
-const MEME_PATH = ".github/assets/attribution.png";
+const MEME_PATH = ".github/assets/attribution.webp";
 const MEME_URL = `https://raw.githubusercontent.com/${REPO}/${MEME_REF}/${MEME_PATH}`;
 
 const MARKER = "<!-- ai-attribution-check -->";
