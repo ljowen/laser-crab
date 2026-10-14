@@ -92,9 +92,11 @@ is only a fallback.
   commits go uninspected and the run logs a warning.
 - Only commits belonging to the PR are checked — nothing already on the base
   branch is revisited.
-- **The image URL must point at a public repo.** GitHub's image proxy fetches
-  server-side and unauthenticated, so a `raw.githubusercontent.com` URL only
-  renders if the repo hosting the *file* is public. The repo running the
-  *workflow* can be private — that's why the default URL is pinned here rather
-  than built from `github.repository`. If you fork this repo private and
-  self-host the image, the comment will show a broken image.
+- **The image URL must point at somewhere publicly readable.** GitHub leaves
+  `raw.githubusercontent.com` links untouched when rendering a comment (it's
+  their own domain), so the reader's browser fetches the file directly and
+  unauthenticated — it has to be public. Third-party URLs are instead proxied
+  through `camo.githubusercontent.com`, which fetches server-side, also
+  unauthenticated. Either way the *file* must be public; the repo running the
+  *workflow* can be private, which is why the default URL is pinned to this
+  repo rather than built from `github.repository`.

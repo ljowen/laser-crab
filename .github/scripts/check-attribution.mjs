@@ -10,9 +10,9 @@ const REPO = process.env.GITHUB_REPOSITORY;
 const PR = process.env.PR_NUMBER;
 
 // The image is served from laser-crab's own *public* repo rather than from
-// whichever repo this is running in. GitHub's image proxy fetches server-side
-// and unauthenticated, so a raw URL only renders if the hosting repo is
-// public -- addressing the running repo would break every private install.
+// whichever repo this is running in. GitHub renders raw.githubusercontent.com
+// links as-is, so the reader's browser fetches the file unauthenticated and it
+// must be public -- addressing the running repo would break private installs.
 // Set MEME_URL to self-host instead.
 const MEME_URL =
   process.env.MEME_URL ||
