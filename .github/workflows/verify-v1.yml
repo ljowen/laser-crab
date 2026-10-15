@@ -1,0 +1,24 @@
+# Temporary: proves the published ljowen/laser-crab@v1 consumer path works.
+name: Verify v1 tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: 'PR number to scan'
+        required: true
+
+permissions:
+  pull-requests: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - id: scan
+        uses: ljowen/laser-crab@v1
+        with:
+          pr-number: ${{ inputs.pr }}
+          fail-on-match: 'false'
+      - run: echo "count output = '${{ steps.scan.outputs.count }}'"
+        shell: bash
