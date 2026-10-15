@@ -1,12 +1,11 @@
+# This repo dogfooding its own action, pinned to the working tree rather
+# than a tag so a PR tests the code it changes.
 name: AI attribution check
 
 on:
   pull_request_target:
     types: [opened, synchronize, reopened]
 
-# pull_request_target (not pull_request) so the job gets a writable token on
-# fork PRs. Safe here because we never check out or execute PR code -- the
-# checkout below is pinned to the base repo and we only read commit metadata.
 permissions:
   contents: read
   pull-requests: write
@@ -19,17 +18,13 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out base repo (trusted code only)
-        uses: actions/checkout@v7
+      # Needed only because `uses: ./` requires the action on disk. Consumers
+      # referencing ljowen/laser-crab@v1 don't need a checkout at all.
+      # Pinned to the base commit: never check out PR code under
+      # pull_request_target, which runs with a writable token.
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           persist-credentials: false
 
-      - name: Scan commits for AI attribution
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          # Optional: self-host the image. Defaults to the copy in the
-          # public ljowen/laser-crab repo, which renders in private repos too.
-          # MEME_URL: https://example.com/attribution.webp
-        run: node .github/scripts/check-attribution.mjs
+      - uses: ./

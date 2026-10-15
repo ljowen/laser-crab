@@ -1,0 +1,40 @@
+# Reusable workflow. Call it from another repo with:
+#
+#   jobs:
+#     attribution:
+#       uses: ljowen/laser-crab/.github/workflows/laser-crab.yml@v1
+#
+# The caller must grant `pull-requests: write` -- a called workflow can
+# narrow the token's permissions but never widen them.
+name: Laser Crab (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      meme-url:
+        description: 'Image to embed. Must be publicly readable.'
+        required: false
+        type: string
+        default: ''
+      fail-on-match:
+        description: 'Fail the check on a match. false nags without blocking.'
+        required: false
+        type: string
+        default: 'true'
+    outputs:
+      count:
+        description: 'Number of commits carrying AI attribution.'
+        value: ${{ jobs.check.outputs.count }}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      count: ${{ steps.scan.outputs.count }}
+    steps:
+      # No checkout: the action ships its own code.
+      - id: scan
+        uses: ljowen/laser-crab@v1
+        with:
+          meme-url: ${{ inputs.meme-url }}
+          fail-on-match: ${{ inputs.fail-on-match }}

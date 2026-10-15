@@ -1,0 +1,44 @@
+name: 'Laser Crab AI Attribution Check'
+description: 'Comments on a PR when its commits credit an AI assistant as an author, with a meme and a task item.'
+author: 'ljowen'
+
+branding:
+  icon: 'alert-octagon'
+  color: 'red'
+
+inputs:
+  github-token:
+    description: 'Token used to read PR commits and write the comment. Needs pull-requests: write.'
+    required: false
+    default: ${{ github.token }}
+  pr-number:
+    description: 'Pull request to check. Defaults to the PR from the triggering event.'
+    required: false
+    default: ${{ github.event.pull_request.number }}
+  meme-url:
+    description: 'Image to embed in the comment. Must be publicly readable. Defaults to the one in this repo.'
+    required: false
+    default: ''
+  fail-on-match:
+    description: 'Fail the check when attribution is found. Set to false to nag without blocking.'
+    required: false
+    default: 'true'
+
+outputs:
+  count:
+    description: 'Number of commits found carrying AI attribution.'
+    value: ${{ steps.scan.outputs.count }}
+
+runs:
+  using: 'composite'
+  steps:
+    - id: scan
+      shell: bash
+      # github.action_path is this action's own checkout, so the consumer
+      # never needs an actions/checkout step of their own.
+      run: node "$GITHUB_ACTION_PATH/src/check-attribution.mjs"
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        PR_NUMBER: ${{ inputs.pr-number }}
+        MEME_URL: ${{ inputs.meme-url }}
+        FAIL_ON_MATCH: ${{ inputs.fail-on-match }}

@@ -9,6 +9,9 @@ const TOKEN = process.env.GITHUB_TOKEN;
 const REPO = process.env.GITHUB_REPOSITORY;
 const PR = process.env.PR_NUMBER;
 
+// Anything but an explicit "false" keeps the check failing on a match.
+const FAIL_ON_MATCH = (process.env.FAIL_ON_MATCH ?? "true").toLowerCase() !== "false";
+
 // The image is served from laser-crab's own *public* repo rather than from
 // whichever repo this is running in. GitHub renders raw.githubusercontent.com
 // links as-is, so the reader's browser fetches the file unauthenticated and it
@@ -148,6 +151,11 @@ async function main() {
   }
 
   const offenders = commits.map(inspect).filter(Boolean);
+  if (process.env.GITHUB_OUTPUT) {
+    const { appendFile } = await import("node:fs/promises");
+    await appendFile(process.env.GITHUB_OUTPUT, `count=${offenders.length}\n`);
+  }
+
   const existing = await findExistingComment();
 
   if (!offenders.length && !existing) {
@@ -178,14 +186,16 @@ async function main() {
       ].join("\n")
     : "## ✅ No AI attribution\n\nAll commits are clean.";
   if (process.env.GITHUB_STEP_SUMMARY) {
-    await (await import("node:fs/promises")).appendFile(process.env.GITHUB_STEP_SUMMARY, `${summary}\n`);
+    const { appendFile } = await import("node:fs/promises");
+    await appendFile(process.env.GITHUB_STEP_SUMMARY, `${summary}\n`);
   }
 
   for (const o of offenders) {
-    console.log(`::error title=AI attribution on ${o.sha}::${o.vendors.join(", ")} — ${o.evidence[0]}`);
+    const level = FAIL_ON_MATCH ? "error" : "warning";
+    console.log(`::${level} title=AI attribution on ${o.sha}::${o.vendors.join(", ")} — ${o.evidence[0]}`);
   }
 
-  return offenders.length ? 1 : 0;
+  return offenders.length && FAIL_ON_MATCH ? 1 : 0;
 }
 
 main().then(
